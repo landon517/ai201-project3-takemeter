@@ -5,7 +5,7 @@ the community values meaningful and rich discourse, often being enlightened
 
 
 Labels - 
-hot take: a claim without any real evidence, grounded in a feeling the author holds, usually leading to discussion. This usually intends to find people with similar opinions.
+opinion: a claim without any real evidence, grounded in a feeling the author holds, usually leading to discussion. This usually intends to find people with similar opinions.
 
   example 1:
   I don't really understand why people dislike Disturbed's Sound of Silence cover
@@ -56,3 +56,21 @@ I have recently become intrigued by this topic. As a long time k-pop fan it was 
 
 This distinction matters because the community values discourse where new opinions and viewpoints are shared, and people become more aware of the broader musical landscape.
 
+
+
+----MILESTONE 2----
+
+Edge Cases:
+Should it be hot_take if it's stated as a question? Is one sentence of reasoning enough to differentiate a reasoning claim from a hot take, or is reasoning only for a deep dive? 
+I'm going to allow hot_take to have some reasoning as long as it is formatted as a hot_take with the intention and knowledge of being a hot take.
+
+I'll store the data in a csv file and if a label is underrepresented I will loosen the terms for the label. If it's very underrepresented <10%, I will loosen the other two until they can absorb the <10%.
+
+When is it success? It should be able to completely understand the labels as mutually exclusive. It shouldn't want to develop another label, and it should be able to quantify the quality of discourse across a large data set.
+
+--- Milestone 3 ---
+question: 51.5%
+analysis: 28%
+opinion: 20.5%
+
+1. "Are any of Arcade Fire's albums significant?" the body makes a clear claim that the Suburbs sounds like the sonic equivalent of Stranger Things, their music just feels empty. Hard to call it a question when there's a real opinion being argued. Decided it's opinion. 2. "Is the loss of a monoculture better or worse for artists?" presents developed reasoning for both sides, which looks like analysis, but never actually takes a position. it just invites the community to weigh in. Decided question. 3. "How music was before" no question mark or explicit claim argued, but it's clearly not a question. It's a nostalgic reflection that implicitly argues streaming stripped context from music. Decided: analysis because the reasoning is developed even if the claim isn't stated directly.
