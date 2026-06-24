@@ -1,30 +1,26 @@
-# TakeMeter
+#TakeMeter
 
-A fine-tuned text classifier that evaluates discourse quality in r/LetsTalkMusic, a Reddit community dedicated to serious music discussion.
+A fine-tuned text classifier that evaluates discourse in r/LetsTalkMusic
 
----
+##Community Choice
 
-## Community Choice
+r/LetsTalkMusic is a subreddit for in-depth music discussion. Unlike general music communities, it attracts listeners who want to go beyond surface-level reactions and engage seriously with albums, artists, and genres. The discourse varies quite a bit. This variation makes it a good candidate for this task. The distinctions are real and meaningful to community members, and the labels map onto genuinely different types of contributions.
 
-r/LetsTalkMusic is a subreddit for in-depth music discussion. Unlike general music communities, it attracts listeners who want to go beyond surface-level reactions and engage seriously with albums, artists, and genres. The discourse varies enormously — some posts are detailed analytical arguments, some are bare opinions with no supporting reasoning, and many are simply questions seeking information or community experience. This variation makes it a strong candidate for a classification task: the distinctions are real and meaningful to community members, and the labels map onto genuinely different types of contributions.
+##Label Taxonomy
 
----
+Three labels were defined
 
-## Label Taxonomy
-
-Three labels were defined to capture the primary modes of discourse in the community:
-
-**opinion** — The post makes a claim or expresses a view without substantial supporting reasoning or evidence. The post may assert something strongly, but does not explain why beyond personal feeling or brief assertion.
+**opinion** The post makes a claim or expresses a view without substantial supporting reasoning or evidence. The post may assert something strongly, but does not explain why beyond personal feeling or brief assertion.
 
 - Example 1: *"Insane Clown Posse is actually kind of underrated. More than Nickelback, more than Imagine Dragons, more than Limp Bizkit. Unlike those 3, ICP NEVER had support from media, and their fans were designated a gang."*
 - Example 2: *"Crunkcore was overhated. I think crunkcore gets way too much hate, it's genuinely not that bad."*
 
-**analysis** — The post makes a claim and backs it with specific evidence, examples, comparisons, or developed reasoning. The post goes beyond assertion to explain *why* something is true.
+**analysis** The post makes a claim and backs it with specific evidence, examples, comparisons, or developed reasoning. The post goes beyond assertion to explain *why* something is true.
 
 - Example 1: *"Why songs are getting shorter has nothing to do with streaming and everything to do with the skip button. Before skipping was instant you sat with things, not because you were more patient, because abandoning a track mid song cost something. The skip button made patience optional and most people stopped exercising it."*
 - Example 2: *"Everyone talks about how grunge killed hair metal but nobody seems to talk about how hair metal did this to AOR bands like Journey/Foreigner/REO Speedwagon. By like 1985 these bands all became adult contemporary, basically. Like Celine Dion with guitars."*
 
-**question** — The post seeks information, recommendations, or community experiences. It contains no central claim and is oriented toward receiving rather than making an argument.
+**question** The post seeks information, recommendations, or community experiences. It contains no central claim and is oriented toward receiving rather than making an argument.
 
 - Example 1: *"What's the best way to browse through genres? I tried browsing through genres on rateyourmusic but some genres there have a ton of subgenres making it too much work sometimes."*
 - Example 2: *"How did you 'discover' your favorite bands?"*
@@ -35,7 +31,7 @@ Three labels were defined to capture the primary modes of discourse in the commu
 
 **Source:** Posts were collected manually from r/LetsTalkMusic by browsing the subreddit's hot, top, and new feeds and copying post titles and body text into a spreadsheet.
 
-**Labeling process:** Posts were pre-labeled using Claude (claude-sonnet-4-6) with label definitions provided in the prompt. All 200 pre-assigned labels were then reviewed and corrected manually. Labels were assigned based on the definitions above — the key criterion for distinguishing opinion from analysis was whether the post contained developed reasoning (more than one supporting claim or a specific example used as evidence).
+**Labeling process:** Posts were pre-labeled using Claude (claude-sonnet-4-6) with label definitions provided in the prompt. All 200 pre-assigned labels were then reviewed and corrected manually. Labels were assigned based on the definitions above. The key criterion for distinguishing opinion from analysis was whether the post contained developed reasoning (more than one supporting claim or a specific example used as evidence).
 
 **Label distribution:**
 
@@ -48,13 +44,11 @@ Three labels were defined to capture the primary modes of discourse in the commu
 
 **Difficult-to-label examples:**
 
-1. *"Are any of Arcade Fire's albums significant?"* — The title is a question, but the body makes a clear opinion: "The Suburbs sounds to me like the sonic equivalent of Stranger Things... their music just feels empty." Decided: **opinion**, because the primary thrust of the post is expressing a view, not seeking information.
+1. *"Are any of Arcade Fire's albums significant?"* The title is a question, but the body makes a clear opinion: "The Suburbs sounds to me like the sonic equivalent of Stranger Things. their music just feels empty." Decided: **opinion** because the primary point of the post is expressing a view.
 
-2. *"Is the loss of a monoculture better or worse for artists?"* — Presents developed reasoning for both sides, which resembles analysis. However, the post never takes a position — it is genuinely asking the community to weigh in. Decided: **question**, because no central claim is made.
+2. *"Is the loss of a monoculture better or worse for artists?"* Presents developed reasoning for both sides, which resembles analysis. The post never takes a position: it is asking the community to weigh in. Decided: **question** because no central claim made.
 
-3. *"How music was before"* — No question mark, no explicit stated claim, but clearly not a question. The post implicitly argues that streaming stripped context from music through developed personal reasoning. Decided: **analysis**, because the reasoning is developed even if the thesis is implicit rather than stated.
-
----
+3. *"How music was before"* No question mark, no explicit stated claim, but clearly not a question. The post implicitly argues that streaming stripped context from music through developed personal reasoning. Decided: **analysis**, because the reasoning is developed even if the thesis is implicit rather than stated.
 
 ## Fine-Tuning Approach
 
@@ -66,7 +60,7 @@ Three labels were defined to capture the primary modes of discourse in the commu
 
 **Key hyperparameter decision:** The learning rate of 2e-5 was kept at the default. Given that validation accuracy was flat from epoch 1 onward, the issue was not learning rate sensitivity but rather insufficient training signal — too few examples in the minority classes for distilbert to learn the opinion/analysis boundary.
 
----
+
 
 ## Baseline
 
@@ -98,7 +92,7 @@ question
 
 **How results were collected:** The notebook classified all 30 test examples using the Groq API. All 30 responses were parseable (0 unparseable).
 
----
+
 
 ## Evaluation Report
 
@@ -141,7 +135,7 @@ The model predicted `question` for 29 of 30 examples. It correctly identified 1 
 
 ### Analysis of Wrong Predictions
 
-**Which labels are being confused?** The confusion is almost entirely unidirectional: opinion → question and analysis → question. The model never predicts `opinion` at all, and predicts `analysis` only once. Every misclassification is a collapse into the majority class.
+**Which labels are being confused?** The confusion is almost entirely unidirectional: opinion to question and analysis to question. The model never predicts `opinion` at all, and predicts `analysis` only once. Every misclassification is a collapse into the majority class.
 
 **Why is this boundary hard?** The `opinion` vs `analysis` distinction requires understanding the *degree* of reasoning in a post — a judgment that depends on semantic content rather than surface features. Distilbert, with only 41 opinion examples and 56 analysis examples in training, did not have enough signal to learn this boundary. Posts that look structurally similar (a claim followed by one or two sentences) were consistently sent to `question`, suggesting the model learned question as a safe default rather than learning any of the substantive distinctions.
 
@@ -151,35 +145,37 @@ The model predicted `question` for 29 of 30 examples. It correctly identified 1 
 
 **Three specific wrong predictions:**
 
-> **[YOU FILL IN: Go to your Section 4 output in Colab, find 3 specific posts the model got wrong, and paste them here with the true label, predicted label, and a sentence of analysis. Example format below — replace with your actual examples.]**
+1. **Post:** *Insane Clown Posse is actually kind of underrated.
+Insane Clown Posse might be the most hated music group in modern history. More than Nickelback, more than Imagine Dragons, more than Limp Bizkit, mor...* | **True label:** analysis | **Predicted:** question | **Why it failed:** This one struck me the most odd because it isn't structured as a question. Maybe it's because the writer seems unexperienced.]
 
-1. **Post:** *[paste the post text]* | **True label:** analysis | **Predicted:** question | **Why it failed:** [your analysis]
+2. **Post:** *[Is Jane Remover on a generational run?
+I’ve been listening again and again to Jane Removers most recent EP. And it’s struck me. Is this the underground artist who is going to be remembered like Aphex ...
 
-2. **Post:** *[paste the post text]* | **True label:** opinion | **Predicted:** question | **Why it failed:** [your analysis]
+]* | **True label:** opinion | **Predicted:** question | **Why it failed:** [the title isn't really a question, but it's followed by what's presented as a question. The model needs to know to prioritize the title over the subtitle.]
 
-3. **Post:** *[paste the post text]* | **True label:** [true] | **Predicted:** [predicted] | **Why it failed:** [your analysis]
+3. **Post:** *[Why does Beatles music post 1965 overshadow their earlier Legacy?
+I’m probably going to get absolutely fried for what I’m about to say but I’m just simply not a fan of their music after the release of...]* | **True label:** [true] | **Predicted:** [predicted] | **Why it failed:** [another example of the model struggling to differentiate an opinion directed as a question, and a question with the purposes of pursuing knowledge without a claim]
 
 ### Sample Classifications
 
-> **[YOU FILL IN: Run 3–5 posts through your fine-tuned model in Colab and record the predicted label and confidence score for each. Use the table format below.]**
-
-| Post (truncated) | True Label | Predicted Label | Confidence |
+| Post  truncated | True Label | Predicted Label | Confidence |
 |-----------------|------------|-----------------|------------|
-| [paste post excerpt] | question | question | 0.XX |
-| [paste post excerpt] | analysis | question | 0.XX |
-| [paste post excerpt] | opinion | question | 0.XX |
-
-For the correctly predicted example: [one sentence explaining why the prediction is reasonable].
-
----
+| [Daily listen rn for me
+lil gunnr- wanna see Lil gunnr- howdoyoufeel
+Half the other songs are trash to me But idk maybe i don't get what the genre is supposed to be not sure honestly it just sounds li...] | opinion | question | 0.40 |
+| [Why does Beatles music post 1965 overshadow their earlier Legacy?
+I’m probably going to get absolutely fried for what I’m about to say but I’m just simply not a fan of their music after the release of...] | opinion | question | 0.39 |
+| [Is Taylor Swift more popular now (2022-2026) than (2012-2016)?
+Do you guys think Taylor Swift is more popular today than she was from 2012 to 2016?
+Her red and 1989 were massive each selling a millio..] | analysis | question | 0.39 |
 
 ## Reflection: What the Model Learned vs. What I Intended
 
-I intended the model to learn the distinction between three types of discourse contributions — questions seeking information, opinions asserting without evidence, and analysis making claims with reasoning. What the model actually learned was a much simpler heuristic: predict `question` for almost everything.
+I intended the model to learn the distinction between three types of discourse contributions: questions seeking information, opinions asserting without evidence, and analysis making claims with reasoning. What the model actually learned was the model predicted `question` for almost everything.
 
-This reveals that the distinctions I cared about — the presence or absence of developed reasoning — are not legible to a small model from 140 training examples. The `opinion` and `analysis` labels require understanding the *quality* of argumentation in a post, which is a higher-order semantic judgment that distilbert was not able to acquire with this dataset size.
+This reveals that the presence or absence of developed reasoning are not legible to a small model from 200 training examples. The `opinion` and `analysis` labels require understanding the *quality* of argumentation in a post, which is much harder that it was not able to acquire with this dataset size.
 
-The zero-shot baseline (Llama-3.3-70b) performed significantly better precisely because it already understands language at a level that lets it apply the label definitions directly. Fine-tuning distilbert would require substantially more data and potentially simpler, more surface-distinguishable labels to produce a model that outperforms a capable zero-shot baseline.
+The zero-shot baseline performed significantly better precisely because it already understands language at a level that lets it apply the label definitions directly. Fine-tuning would require substantially more data and potentially simpler labels.
 
 ---
 
@@ -193,14 +189,12 @@ The zero-shot baseline (Llama-3.3-70b) performed significantly better precisely 
 
 ## AI Usage
 
-1. **Pre-labeling the dataset:** I provided Claude (claude-sonnet-4-6) with the 200 unlabeled posts and my label definitions, and asked it to assign one label per post. Claude produced a labeled CSV. I then reviewed every label manually and corrected cases where I disagreed — primarily on the opinion/analysis boundary, where Claude tended to assign `analysis` to posts with any visible reasoning. I overrode approximately [YOU FILL IN: estimate how many you changed] labels during review.
+1. **Pre-labeling the dataset:** I provided Claude (claude-sonnet-4-6) with the 200 unlabeled posts and my label definitions, and asked it to assign one label per post. Claude produced a labeled CSV. I then reviewed every label manually and corrected cases where I disagreed — primarily on the opinion/analysis boundary, where Claude tended to assign `analysis` to posts with any visible reasoning. I overrode approximately [15-20] labels during review.
 
-2. **Label taxonomy design:** I used Claude to stress-test the label definitions before annotating. I described the three labels and asked Claude to identify which would be hardest to apply consistently. Claude flagged the opinion/analysis boundary as the most problematic, noting that any post with one sentence of reasoning sits ambiguously between the two. I used this to tighten my definition: analysis requires *developed* reasoning, not just a single supporting sentence.
-
-3. **Error pattern analysis:** After receiving the wrong predictions from Section 4, I provided them to Claude and asked it to identify common themes. Claude identified the unidirectional collapse to `question` as the dominant pattern, consistent with the confusion matrix. I verified this independently by reading the misclassified examples.
+2. **Error pattern analysis:** After receiving the wrong predictions from Section 4, I provided them to Claude and asked it to identify some issues and themes. Claude identified the `question` issue as the pattern as shown to be consistent with the confusion matrix. I verified this myself afterwards.
 
 ---
 
 ## Dataset
 
-The labeled dataset is included in this repository as `takemeter_labeled.csv`. Columns: `text` (post title + body), `label` (opinion / analysis / question), `notes` (annotation decisions for edge cases).
+The labeled dataset is included in this repository as `takemeter_labeled.csv`. Columns: `text` (post title + body), `label` , `notes` 
